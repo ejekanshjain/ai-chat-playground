@@ -4,7 +4,10 @@ import { withWorkflow } from 'workflow/next'
 import { env } from '~/env'
 
 const nextConfig: NextConfig = {
-  reactCompiler: true
+  reactCompiler: true,
+  experimental: {
+    useTypeScriptCli: true
+  }
 }
 
 const withBundleAnalyzer = bundleAnalyzer({
