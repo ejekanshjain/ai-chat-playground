@@ -1,4 +1,12 @@
-import { boolean, pgTable, text } from 'drizzle-orm/pg-core'
+import type { UIMessage } from 'ai'
+import {
+  boolean,
+  index,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text
+} from 'drizzle-orm/pg-core'
 import { commonFieldDefs } from './common'
 
 export const usersTable = pgTable('users', {
@@ -51,3 +59,40 @@ export const verificationsTable = pgTable('verifications', {
   expiresAt: commonFieldDefs.date('expires_at').notNull(),
   ...commonFieldDefs.dates
 })
+
+export const threadsTable = pgTable(
+  'threads',
+  {
+    id: commonFieldDefs.id('thread'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    title: text('title'),
+    ...commonFieldDefs.dates
+  },
+  table => [index('threads_user_id_idx').on(table.userId)]
+)
+
+export const messageRoleEnum = pgEnum('message_role', [
+  'system',
+  'user',
+  'assistant'
+])
+
+export const threadMessagesTable = pgTable(
+  'thread_messages',
+  {
+    id: commonFieldDefs.id('msg'),
+    threadId: text('thread_id')
+      .notNull()
+      .references(() => threadsTable.id, { onDelete: 'cascade' }),
+    role: messageRoleEnum('role').notNull(),
+    model: text('model'),
+    parts: jsonb('parts').$type<UIMessage['parts']>().notNull(),
+    metadata: jsonb('metadata').$type<UIMessage['metadata']>(),
+    ...commonFieldDefs.dates
+  },
+  table => [
+    index('thread_messages_thread_id_idx').on(table.threadId, table.createdAt)
+  ]
+)
