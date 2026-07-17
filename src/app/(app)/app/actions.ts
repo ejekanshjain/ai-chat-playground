@@ -37,7 +37,7 @@ export const getThreadMessagesAction = authActionClient
 export const createThreadAction = authActionClient
   .inputSchema(
     z.object({
-      title: z.string().trim().min(1).max(60)
+      title: z.string().trim().min(1).max(64)
     })
   )
   .action(async ({ ctx, parsedInput }) => {
