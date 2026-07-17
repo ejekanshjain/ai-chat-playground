@@ -70,7 +70,6 @@ export const threadsTable = pgTable(
       .references(() => usersTable.id, { onDelete: 'cascade' }),
     title: text('title'),
     activeStreamId: varchar('active_stream_id'),
-    activeStreamStartedAt: commonFieldDefs.date('active_stream_started_at'),
     ...commonFieldDefs.dates
   },
   table => [index('threads_user_id_idx').on(table.userId, table.updatedAt)]
