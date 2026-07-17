@@ -4,5 +4,6 @@ out
 build
 next-env.d.ts
 .swc
+*.tsbuildinfo
 .DS_Store
 .env
