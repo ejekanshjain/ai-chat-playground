@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { AppShell } from '~/components/app/app-shell'
 import { getAuthSession } from '~/lib/auth'
 
 export default async function Layout({
@@ -12,9 +13,5 @@ export default async function Layout({
     return redirect('/login')
   }
 
-  return (
-    <div className="flex min-h-screen flex-col space-y-4">
-      <main className="flex-1">{children}</main>
-    </div>
-  )
+  return <AppShell>{children}</AppShell>
 }
