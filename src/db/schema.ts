@@ -73,9 +73,7 @@ export const threadsTable = pgTable(
     activeStreamStartedAt: commonFieldDefs.date('active_stream_started_at'),
     ...commonFieldDefs.dates
   },
-  table => [
-    index('threads_user_id_idx').on(table.userId, table.updatedAt),
-  ]
+  table => [index('threads_user_id_idx').on(table.userId, table.updatedAt)]
 )
 
 export const messageRoleEnum = pgEnum('message_role', ['user', 'assistant'])

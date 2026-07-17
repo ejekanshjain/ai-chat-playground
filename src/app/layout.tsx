@@ -5,6 +5,7 @@ import { ReactQueryProvider } from '~/components/react-query-provider'
 import { ScreenSize } from '~/components/screen-size'
 import { ThemeProvider } from '~/components/theme-provider'
 import { Toaster } from '~/components/ui/sonner'
+import { TooltipProvider } from '~/components/ui/tooltip'
 import { env } from '~/env'
 import { siteConfig } from '~/lib/siteConfig'
 import './globals.css'
@@ -38,10 +39,12 @@ export default function RootLayout({
       <body>
         <ReactQueryProvider>
           <ThemeProvider>
-            <Loader />
-            {children}
-            {env.APP_ENV === 'development' ? <ScreenSize /> : null}
-            <Toaster />
+            <TooltipProvider>
+              <Loader />
+              {children}
+              {env.APP_ENV === 'development' ? <ScreenSize /> : null}
+              <Toaster />
+            </TooltipProvider>
           </ThemeProvider>
         </ReactQueryProvider>
       </body>
