@@ -5,7 +5,8 @@ import {
   jsonb,
   pgEnum,
   pgTable,
-  text
+  text,
+  varchar
 } from 'drizzle-orm/pg-core'
 import { commonFieldDefs } from './common'
 
@@ -68,16 +69,16 @@ export const threadsTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
     title: text('title'),
+    activeStreamId: varchar('active_stream_id'),
+    activeStreamStartedAt: commonFieldDefs.date('active_stream_started_at'),
     ...commonFieldDefs.dates
   },
-  table => [index('threads_user_id_idx').on(table.userId)]
+  table => [
+    index('threads_user_id_idx').on(table.userId, table.updatedAt),
+  ]
 )
 
-export const messageRoleEnum = pgEnum('message_role', [
-  'system',
-  'user',
-  'assistant'
-])
+export const messageRoleEnum = pgEnum('message_role', ['user', 'assistant'])
 
 export const threadMessagesTable = pgTable(
   'thread_messages',
