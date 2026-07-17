@@ -34,6 +34,28 @@ export const getThreadMessagesAction = authActionClient
     return { thread, messages }
   })
 
+export const createThreadAction = authActionClient
+  .inputSchema(
+    z.object({
+      title: z.string().trim().min(1).max(60)
+    })
+  )
+  .action(async ({ ctx, parsedInput }) => {
+    const [thread] = await db
+      .insert(threadsTable)
+      .values({
+        userId: ctx.user.id,
+        title: parsedInput.title
+      })
+      .returning({
+        id: threadsTable.id
+      })
+
+    if (!thread) throw new Error('Failed to create thread')
+
+    return thread.id
+  })
+
 export const deleteThreadAction = authActionClient
   .inputSchema(z.object({ threadId: z.string() }))
   .action(async ({ parsedInput, ctx }) => {

@@ -13,7 +13,7 @@ import { db } from '~/db'
 import { threadMessagesTable, threadsTable } from '~/db/schema'
 import { getAIModels } from '~/lib/ai-models'
 import { getAuthSession } from '~/lib/auth'
-import { generateMessageId } from '~/lib/chat';
+import { generateMessageId } from '~/lib/chat'
 
 const requestSchema = z.object({
   threadId: z.string(),
@@ -24,16 +24,6 @@ const requestSchema = z.object({
     parts: z.array(z.looseObject({}))
   })
 })
-
-const generateTitle = (message: UIMessage) => {
-  const text = message.parts
-    .filter(part => part.type === 'text')
-    .map(part => part.text)
-    .join(' ')
-    .trim()
-
-  return text.length > 60 ? `${text.slice(0, 60)}…` : text || 'New chat'
-}
 
 export async function POST(req: Request) {
   const authSession = await getAuthSession()
@@ -50,29 +40,18 @@ export async function POST(req: Request) {
 
   const { threadId, model, message } = parsedBody.data
 
-  let thread = await db.query.threadsTable.findFirst({
+  const thread = await db.query.threadsTable.findFirst({
     where: eq(threadsTable.id, threadId)
   })
 
+  if (!thread)
+    return NextResponse.json(
+      { error: 'Failed to create thread' },
+      { status: 500 }
+    )
+
   if (thread && thread.userId !== authSession.user.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  if (!thread) {
-    ;[thread] = await db
-      .insert(threadsTable)
-      .values({
-        id: threadId,
-        userId: authSession.user.id,
-        title: generateTitle(message as UIMessage)
-      })
-      .returning()
-
-    if (!thread)
-      return NextResponse.json(
-        { error: 'Failed to create thread' },
-        { status: 500 }
-      )
   }
 
   const aiModels = await getAIModels()
@@ -144,7 +123,7 @@ export async function POST(req: Request) {
           }),
           db
             .update(threadsTable)
-            .set({ updatedAt: new Date() })
+            .set({ activeStreamId: null })
             .where(eq(threadsTable.id, threadId))
         ])
       }
