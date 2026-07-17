@@ -6,7 +6,7 @@ import {
   UIMessage,
   validateUIMessages
 } from 'ai'
-import { asc, eq } from 'drizzle-orm'
+import { and, asc, eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '~/db'
@@ -41,21 +41,18 @@ export async function POST(req: Request) {
   const { threadId, model, message } = parsedBody.data
 
   const thread = await db.query.threadsTable.findFirst({
-    where: eq(threadsTable.id, threadId)
+    where: and(
+      eq(threadsTable.id, threadId),
+      eq(threadsTable.userId, authSession.user.id)
+    )
   })
 
-  if (!thread)
-    return NextResponse.json(
-      { error: 'Failed to create thread' },
-      { status: 500 }
-    )
-
-  if (thread && thread.userId !== authSession.user.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!thread) {
+    return NextResponse.json({ error: 'Thread not found' }, { status: 404 })
   }
 
   const aiModels = await getAIModels()
-  const modelExists = aiModels.some(aiModel => aiModel)
+  const modelExists = aiModels.some(aiModel => aiModel.id === model)
 
   if (!modelExists) {
     return NextResponse.json({ error: 'Invalid model' }, { status: 400 })
@@ -63,7 +60,7 @@ export async function POST(req: Request) {
 
   const dbMessages = await db.query.threadMessagesTable.findMany({
     where: eq(threadMessagesTable.threadId, threadId),
-    orderBy: asc(threadMessagesTable.updatedAt)
+    orderBy: asc(threadMessagesTable.createdAt)
   })
 
   let messages = dbMessages.map(
