@@ -12,7 +12,8 @@ export const SocialLoginButtons = () => {
         variant="outline"
         onClick={async () => {
           await signIn.social({
-            provider: 'google'
+            provider: 'google',
+            callbackURL: '/app'
           })
         }}
       >
@@ -49,7 +50,8 @@ export const SocialLoginButtons = () => {
         variant="outline"
         onClick={async () => {
           await signIn.social({
-            provider: 'github'
+            provider: 'github',
+            callbackURL: '/app'
           })
         }}
       >

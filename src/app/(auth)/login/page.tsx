@@ -17,7 +17,7 @@ import { SocialLoginButtons } from './social-login-buttons'
 export default async function LoginPage() {
   const authSession = await getAuthSession()
 
-  if (authSession) redirect('/')
+  if (authSession) return redirect('/app')
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">

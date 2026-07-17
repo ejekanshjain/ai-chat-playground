@@ -40,7 +40,8 @@ export const EmailLoginForm = () => {
     try {
       const res = await signIn.magicLink({
         email,
-        name: ''
+        name: '',
+        callbackURL: '/app'
       })
       if (res?.error) throw res.error
       setIsSent(email)
