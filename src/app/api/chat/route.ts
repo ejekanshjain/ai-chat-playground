@@ -13,6 +13,7 @@ import { db } from '~/db'
 import { threadMessagesTable, threadsTable } from '~/db/schema'
 import { getAIModels } from '~/lib/ai-models'
 import { getAuthSession } from '~/lib/auth'
+import { generateMessageId } from '~/lib/chat';
 
 const requestSchema = z.object({
   threadId: z.string(),
@@ -130,7 +131,7 @@ export async function POST(req: Request) {
     stream: toUIMessageStream({
       stream: llmStream.stream,
       originalMessages: messages,
-      generateMessageId: () => threadMessagesTable.id.defaultFn!().toString(),
+      generateMessageId,
       onEnd: async ({ responseMessage }) => {
         await Promise.all([
           db.insert(threadMessagesTable).values({
